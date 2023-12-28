@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <menuitem
+            id="menu_food_main"
+            name="Food Order"
+            sequence="5"/>'
+
+    <menuitem id="menu_food_order"
+          name="Đặt đồ ăn"
+          parent="menu_food_main"
+          action="action_food_order"
+              sequence="10"/>
+
+<!--    <menuitem id="menu_current_user_form"-->
+<!--          name="Cập Nhật Thông Tin Cá Nhân"-->
+<!--          action="action_current_user_form"-->
+<!--          parent="menu_food_main"-->
+<!--          sequence=" 20"/>-->
+
+</odoo>
