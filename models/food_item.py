@@ -9,7 +9,7 @@ class FoodItem(models.Model):
     food_price = fields.Float(string='Giá Món', required=True)
     member_id = fields.Many2one('res.users', string='Thành Viên', required=True)
     paid_status = fields.Boolean(string='Trạng Thái Thanh Toán')
-    order_id = fields.Many2one('food.order', string='Order', required=True)
+    order_id = fields.Many2one('food.order', string='Order', required=True, ondelete='cascade')
     discount_shared = fields.Float(string='Giảm giá', compute='_compute_shipping_fee_shared')
     shipping_fee_shared = fields.Float(string='Tiền Ship', compute='_compute_shipping_fee_shared')
     total_price = fields.Float(string='Tổng tiền phải trả', compute='_compute_total_price')

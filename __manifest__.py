@@ -10,7 +10,7 @@
         Hơn cả Module đặt đồ ăn bùng lổ 
     """,
 
-    'icon':'/food_order/static/description/icon.png',
+    'icon':'food-order/static/description/icon.png',
 
     'author': "My Company",
     'website': "https://www.yourcompany.com",

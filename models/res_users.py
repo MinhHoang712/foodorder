@@ -7,3 +7,8 @@ class ResUsers(models.Model):
     qr = fields.Binary(string='QR Code Image')
     stk = fields.Char(string='Số tài khoản')
     nganhang = fields.Char(string='Ngân hàng')
+
+
+
+
+

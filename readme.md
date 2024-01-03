@@ -24,10 +24,8 @@ Sau khi cài đặt, bạn có thể cấu hình module từ menu `Food Orders` 
 
 ## Chú ý
 Khi sử dụng module này, hãy đảm bảo rằng bạn đã thêm thông tin QR Code, Số Tài Khoản (STK) và Ngân Hàng cho mỗi người dùng trong hệ thống. Để thêm hoặc cập nhật thông tin này:
-1. Truy cập `Settings > Users & Companies > Users`.
-2. Chọn người dùng cần cập nhật.
-3. Trong form chi tiết người dùng, cuộn xuống mục `Thông tin thanh toán`.
-4. Thêm hoặc cập nhật thông tin QR Code, Số Tài Khoản và Ngân Hàng tại đây.
-5. Lưu lại các thay đổi.
+1. Truy cập `Food Order > thông tin thanh toán `.
+2. Thêm hoặc cập nhật thông tin QR Code, Số Tài Khoản và Ngân Hàng tại đây.
+3. Lưu lại các thay đổi.
 Thông tin này sẽ được sử dụng khi gửi thông báo về các món ăn chưa thanh toán, giúp người nhận dễ dàng thực hiện thanh toán.
 

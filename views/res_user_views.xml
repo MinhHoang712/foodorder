@@ -1,26 +1,50 @@
 <odoo>
     <data>
-        <record id="res_users_form_view_custom" model="ir.ui.view">
-            <field name="name">res.users.form.view.custom</field>
-            <field name="model">res.users</field>
-            <field name="inherit_id" ref="base.view_users_form"/>
+         <record id="view_user_payment_info_form" model="ir.ui.view">
+            <field name="name">user.payment.info.form</field>
+            <field name="model">user.payment.info</field>
             <field name="arch" type="xml">
-                <xpath expr="//form/sheet" position="inside">
+                <form>
                     <group>
-                        <field name="qr" widget="image" options="{'size': [90, 90]}"/>
+                        <field name="user_id" readonly="1"/>
+                        <field name="qr" widget='image' options="{'size': [90, 90]}"/>
                         <field name="stk"/>
                         <field name="nganhang"/>
                     </group>
-                </xpath>
+                </form>
             </field>
         </record>
 
-        <record id="action_res_users_custom" model="ir.actions.act_window">
-            <field name="name">Thông tin Thanh Toán</field>
-            <field name="res_model">res.users</field>
-            <field name="view_mode">form</field>
-            <field name="view_id" ref="res_users_form_view_custom"/>
+         <record id="view_user_payment_info_tree" model="ir.ui.view">
+            <field name="name">user.payment.info.tree</field>
+            <field name="model">user.payment.info</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="user_id"/>
+                    <field name="stk"/>
+                    <field name="nganhang"/>
+                </tree>
+            </field>
         </record>
+
+
+<!--          <record id="action_user_payment_info" model="ir.actions.act_window">-->
+<!--            <field name="name">User Payment Info</field>-->
+<!--            <field name="type">ir.actions.act_window</field>-->
+<!--            <field name="res_model">user.payment.info</field>-->
+<!--            <field name="view_mode">form</field>-->
+<!--            <field name="view_id" ref="view_user_payment_info_tree"/>-->
+<!--          </record>-->
+
+        <record id="action_open_current_user_payment_info" model="ir.actions.server">
+            <field name="name">Open Current User Payment Info</field>
+            <field name="model_id" ref="model_user_payment_info"/>
+            <field name="state">code</field>
+            <field name="code">
+                action = env['user.payment.info'].open_current_user_payment_info()
+            </field>
+        </record>
+
 
     </data>
 </odoo>

@@ -12,14 +12,20 @@ class FoodOrder(models.Model):
     order_date = fields.Date(string='Ngày đặt', required=True)
     discount = fields.Float(string='Giảm Giá')
     shipping_fee = fields.Float(string='Phí Ship')
+    payment_info_id = fields.Many2one('user.payment.info', string='Payment Information',  compute='_compute_payment_info', store=True, readonly=True)
     food_item_ids = fields.One2many('food.item', 'order_id', string='Food Items', required=True)
-    order_creator_qr = fields.Binary(related='order_creator_id.qr', string='QR Code', readonly=True)
-    order_creator_stk = fields.Char(related='order_creator_id.stk', string='Số tài khoản', readonly=True)
-    order_creator_nganhang = fields.Char(related='order_creator_id.nganhang', string='Ngân hàng', readonly=True)
+    order_creator_qr = fields.Binary(related='payment_info_id.qr', string='QR Code', readonly=True)
+    order_creator_stk = fields.Char(related='payment_info_id.stk', string='Số tài khoản', readonly=True)
+    order_creator_nganhang = fields.Char(related='payment_info_id.nganhang', string='Ngân hàng', readonly=True)
     complete = fields.Boolean(string='Hoàn Thành', compute='_compute_complete', store=True)
     currency_id = fields.Many2one('res.currency', string='Currency',
                                   default=lambda self: self.env.company.currency_id.id)
 
+    @api.depends('order_creator_id')
+    def _compute_payment_info(self):
+        for record in self:
+            payment_info = self.env['user.payment.info'].search([('user_id', '=', record.order_creator_id.id)], limit=1)
+            record.payment_info_id = payment_info
     @api.depends('food_item_ids.food_price', 'shipping_fee', 'discount')
     def _compute_total_price(self):
         for order in self:
@@ -37,25 +43,25 @@ class FoodOrder(models.Model):
         for order in orders:
             unpaid_items = order.food_item_ids.filtered(lambda item: not item.paid_status and item.member_id)
             if unpaid_items:
-                body = "<p>Bạn còn các mục chưa thanh toán trong đơn hàng: {}</p>".format(order.title)
                 for item in unpaid_items:
-                    formatted_price = "{:,.0f} VND".format(item.total_price)  # Định dạng số và thêm 'VND'
+                    formatted_price = "{:,.0f} VND".format(item.total_price)
+                    body = "<p>Bạn còn một mục chưa thanh toán trong đơn hàng: {}</p>".format(order.title)
                     body += "<p>- Món ăn: {}: {}</p>".format(item.food_name, formatted_price)
 
-                if order.order_creator_qr:
-                    qr_src = "data:image/png;base64,{}".format(order.order_creator_qr.decode())
-                    body += "<p>QR Code for Payment:</p><img src='{}'/>".format(qr_src)
+                    if order.order_creator_qr:
+                        qr_src = "data:image/png;base64,{}".format(order.order_creator_qr.decode())
+                        body += "<p>QR Code for Payment:</p><img src='{}'/>".format(qr_src)
 
-                channel = self.env['mail.channel'].channel_get([order.order_creator_id.partner_id.id])
-                channel_id = self.env['mail.channel'].browse(channel['id'])
+                    channel = self.env['mail.channel'].channel_get([item.member_id.partner_id.id])
+                    channel_id = self.env['mail.channel'].browse(channel['id'])
 
-                channel_id.with_context(mail_create_nosubscribe=True).message_post(
-                    body=body,
-                    author_id=self.env.ref('base.partner_root').id,
-                    message_type='comment',
-                    subtype_xmlid='mail.mt_comment',
-                    content_subtype='html'
-                )
+                    channel_id.with_context(mail_create_nosubscribe=True).message_post(
+                        body=body,
+                        author_id=self.env.ref('base.partner_root').id,
+                        message_type='comment',
+                        subtype_xmlid='mail.mt_comment',
+                        content_subtype='html'
+                    )
 
     @api.constrains('food_item_ids')
     def _check_food_item_ids(self):

@@ -11,10 +11,16 @@
           action="action_food_order"
               sequence="10"/>
 
-<!--    <menuitem id="menu_current_user_form"-->
-<!--          name="Cập Nhật Thông Tin Cá Nhân"-->
-<!--          action="action_current_user_form"-->
-<!--          parent="menu_food_main"-->
-<!--          sequence=" 20"/>-->
+<!--      <menuitem id="menu_user_payment_info"-->
+<!--                  name="Thông tin Thanh Toán"-->
+<!--                  action="action_user_payment_info"-->
+<!--                  parent="menu_food_main"-->
+<!--                sequence="15"/>-->
+
+    <menuitem id="menu_user_payment_info2"
+                  name="Thông tin Thanh Toán"
+                  action="action_open_current_user_payment_info"
+                  parent="menu_food_main"
+                sequence=" 30"/>
 
 </odoo>
