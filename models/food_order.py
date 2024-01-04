@@ -6,13 +6,13 @@ class FoodOrder(models.Model):
     _description = 'Food Order'
     _rec_name = 'title'
 
-    title = fields.Char(string='Đơn order', required=True)
+    title = fields.Char(string='Đơn hàng', required=True)
     order_creator_id = fields.Many2one('res.users', string='Người thanh toán', default=lambda self: self.env.user, readonly=True)
     total_price = fields.Float(string='Tổng thanh toán', compute='_compute_total_price')
-    order_date = fields.Date(string='Ngày đặt', required=True)
+    order_date = fields.Date(string='Ngày đặt', required=True,  default=lambda self: fields.Date.context_today(self))
     discount = fields.Float(string='Giảm Giá')
     shipping_fee = fields.Float(string='Phí Ship')
-    payment_info_id = fields.Many2one('user.payment.info', string='Payment Information',  compute='_compute_payment_info', store=True, readonly=True)
+    payment_info_id = fields.Many2one('user.payment.info', string='Thông tin thanh toán',  compute='_compute_payment_info', store=True, readonly=True)
     food_item_ids = fields.One2many('food.item', 'order_id', string='Food Items', required=True)
     order_creator_qr = fields.Binary(related='payment_info_id.qr', string='QR Code', readonly=True)
     order_creator_stk = fields.Char(related='payment_info_id.stk', string='Số tài khoản', readonly=True)
@@ -20,12 +20,22 @@ class FoodOrder(models.Model):
     complete = fields.Boolean(string='Hoàn Thành', compute='_compute_complete', store=True)
     currency_id = fields.Many2one('res.currency', string='Currency',
                                   default=lambda self: self.env.company.currency_id.id)
-
+    amount_paid = fields.Float(string='Số Tiền Đã Thanh Toán', compute='_compute_amount_paid')
+    amount_due = fields.Float(string='Số Tiền Còn Thiếu', compute='_compute_amount_due')
+    @api.depends('food_item_ids.food_price', 'food_item_ids.paid_status')
+    def _compute_amount_paid(self):
+        for order in self:
+            order.amount_paid = sum(item.total_price for item in order.food_item_ids if item.paid_status)
     @api.depends('order_creator_id')
     def _compute_payment_info(self):
         for record in self:
             payment_info = self.env['user.payment.info'].search([('user_id', '=', record.order_creator_id.id)], limit=1)
             record.payment_info_id = payment_info
+
+    @api.depends('total_price', 'amount_paid')
+    def _compute_amount_due(self):
+        for order in self:
+            order.amount_due = order.total_price - order.amount_paid
     @api.depends('food_item_ids.food_price', 'shipping_fee', 'discount')
     def _compute_total_price(self):
         for order in self:
@@ -35,7 +45,7 @@ class FoodOrder(models.Model):
     @api.depends('food_item_ids.paid_status')
     def _compute_complete(self):
         for order in self:
-            order.complete = all(item.paid_status for item in order.food_item_ids)
+            order.complete = all(item.paid_status for item in order.food_item_ids) if order.food_item_ids else False
 
     @api.model
     def notify_unpaid_orders(self):
@@ -72,3 +82,14 @@ class FoodOrder(models.Model):
             for item in order.food_item_ids:
                 if not item.food_name or item.food_price <= 0:
                     raise ValidationError("Mỗi món ăn phải có tên và giá hợp lệ.")
+
+    def write(self, vals):
+        restricted_fields = ['title', 'order_date', 'discount', 'shipping_fee']
+
+        if any(field in vals for field in restricted_fields):
+            for record in self:
+                if record.create_uid != self.env.user:
+                    raise ValidationError(
+                        "Bạn không có quyền chỉnh sửa các quyền này ")
+
+        return super(FoodOrder, self).write(vals)

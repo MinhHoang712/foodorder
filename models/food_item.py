@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
 
 
 class FoodItem(models.Model):
@@ -45,3 +46,18 @@ class FoodItem(models.Model):
     def _compute_total_price(self):
         for item in self:
             item.total_price = item.food_price + item.shipping_fee_shared - item.discount_shared
+
+    @api.model
+    def write(self, vals):
+        if 'paid_status' in vals:
+            for item in self:
+                if item.order_id.create_uid != self.env.user:
+                    raise ValidationError("Chỉ người tạo ra đơn hàng mới có thể thay đổi trạng thái thanh toán.")
+        return super(FoodItem, self).write(vals)
+
+    @api.model
+    def unlink(self):
+        for item in self:
+            if item.member_id != self.env.user:
+                raise ValidationError("Bạn chỉ có thể xóa các món ăn mà bạn đã thêm.")
+        return super(FoodItem, self).unlink()

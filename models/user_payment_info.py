@@ -5,8 +5,8 @@ class UserPaymentInfo(models.Model):
     _description = 'User Payment Information'
     _rec_name = 'user_id'
 
-    user_id = fields.Many2one('res.users', string='User',default=lambda self: self.env.user ,required=True, ondelete='cascade')
-    qr = fields.Binary(string='QR Code Image')
+    user_id = fields.Many2one('res.users', string='Người dùng',default=lambda self: self.env.user ,required=True, ondelete='cascade')
+    qr = fields.Binary(string='QR Code')
     stk = fields.Char(string='Số tài khoản')
     nganhang = fields.Char(string='Ngân hàng')
 
